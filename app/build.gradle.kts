@@ -24,8 +24,7 @@ android {
                             STC_KEY_STORE_FILE_PASS=key-store-password
                             STC_KEY_STORE_ALIAS_NAME=key-alias-name
                             STC_KEY_STORE_ALIAS_PASS=key-alias-password
-                            """
-                        .trimIndent()
+                            """.trimIndent()
                 )
             }
 
@@ -41,8 +40,8 @@ android {
         applicationId = "no1.share.to.clipboard"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         signingConfig = signingConfigs["DefaultSingingKey"]
@@ -50,7 +49,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
