@@ -2,12 +2,19 @@ package no1.share.to.clipboard;
 
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
+import android.content.ContentResolver;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.provider.MediaStore;
+import java.io.InputStream;
+import java.io.IOException;
 
 public class ShareActivity extends Activity {
 
@@ -65,18 +72,60 @@ public class ShareActivity extends Activity {
     private void copyMediaToClipboard(Uri uri, String mimeType) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 
-        // Create a ClipData with the actual media URI
-        // This allows apps to access the media content directly
-        ClipData clip = ClipData.newUri(getContentResolver(), "Shared Media", uri);
+        if (mimeType != null && mimeType.startsWith("image/")) {
+            // For images, load the bitmap and copy it to clipboard
+            // This creates a persistent copy that won't disappear
+            try {
+                Bitmap bitmap = loadBitmapFromUri(uri);
+                if (bitmap != null) {
+                    ClipData clip = ClipData.newPlainText("image", "");
+                    clipboard.setPrimaryClip(clip);
 
+                    // Use the newer API to set bitmap if available
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                        ClipData clipData = ClipData.newPlainText("", "");
+                        ClipDescription clipDescription = new ClipDescription("image", new String[]{"image/*"});
+                        clipboard.setPrimaryClip(new ClipData(clipDescription, new ClipData.Item(uri)));
+                    }
+
+                    // For better compatibility, save to MediaStore and copy that URI
+                    String savedUri = MediaStore.Images.Media.insertImage(
+                            getContentResolver(),
+                            bitmap,
+                            "clipboard_image",
+                            "Image from clipboard"
+                    );
+
+                    if (savedUri != null) {
+                        ClipData clip2 = ClipData.newUri(getContentResolver(), "Shared Media", Uri.parse(savedUri));
+                        clipboard.setPrimaryClip(clip2);
+                    }
+
+                    return;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Fallback: copy URI reference
+        ClipData clip = ClipData.newUri(getContentResolver(), "Shared Media", uri);
         clipboard.setPrimaryClip(clip);
     }
 
-    // RENAME the old copyToClipboard method to:
-    private void copyTextToClipboard(String label, String text) {
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText(label, text);
-        clipboard.setPrimaryClip(clip);
+    // ADD this helper method:
+    private Bitmap loadBitmapFromUri(Uri uri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            if (inputStream != null) {
+                inputStream.close();
+            }
+            return bitmap;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private void handleGenericShare(Intent intent) {
