@@ -12,7 +12,7 @@ But there is not such option in Android. This app adds this option.
 
 After installing, a new option will be added to your share menu that allows you to copy sharable thing into clipboard:
 
-![Share to Clipboard](./assets/rm-02-android-share-screenshot.jpg)
+![Share to Clipboard](./assets/rm-02-android-share-screenshot.png)
 
 ## Privacy Policy
 This app does not gather any information at all.
