@@ -96,6 +96,9 @@ class ShareActivity : Activity() {
             val cachePath = File(cacheDir, "shared")
             cachePath.mkdirs()
             val file = File(cachePath, "shared_image.png")
+            if (file.exists()) {
+                file.delete()
+            }
             val stream = FileOutputStream(file)
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
             stream.close()
