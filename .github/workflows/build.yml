@@ -36,7 +36,7 @@ jobs:
           cat >> gradle.properties <<EOF
           STC_KEY_STORE_FILE_PATH=./keystore.jks
           STC_KEY_STORE_FILE_PASS=password
-          STC_KEY_STORE_ALIAS_NAME=alial
+          STC_KEY_STORE_ALIAS_NAME=alias
           STC_KEY_STORE_ALIAS_PASS=password
           EOF
           
