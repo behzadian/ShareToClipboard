@@ -5,12 +5,10 @@ plugins {
 
 android {
     namespace = "no1.share.to.clipboard"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 37
 
     signingConfigs {
-        create("DefaultSingingKey") {
+        create("DefaultSigningKey") {
             if (
                 !project.hasProperty("STC_KEY_STORE_FILE_PATH") ||
                 !project.hasProperty("STC_KEY_STORE_FILE_PASS") ||
@@ -19,7 +17,7 @@ android {
             ) {
                 throw GradleException(
                     """
-                            Please define singing properties in ~/.gradle/gradle.properties like below:
+                            Please define signing properties in ~/.gradle/gradle.properties like below:
                             STC_KEY_STORE_FILE_PATH=/path/to/key/store/file
                             STC_KEY_STORE_FILE_PASS=key-store-password
                             STC_KEY_STORE_ALIAS_NAME=key-alias-name
@@ -44,12 +42,13 @@ android {
         versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        signingConfig = signingConfigs["DefaultSingingKey"]
+        signingConfig = signingConfigs["DefaultSigningKey"]
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -57,13 +56,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
 }
 
 tasks.withType<JavaCompile> {
     options.compilerArgs.add("-Xlint:deprecation")
+    options.compilerArgs.add("-Werror")
 }
 
 dependencies {
