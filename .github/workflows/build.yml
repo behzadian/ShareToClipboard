@@ -11,6 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'microsoft'
+          cache: gradle
 
       - name: Create temporary signing keystore
         shell: bash
@@ -20,7 +26,7 @@ jobs:
           KEY_PASS="$(openssl rand -hex 16)"
           ALIAS_NAME="tempalias"
           keytool -genkeypair \
-            -keystore "./keystore.jks" \
+            -keystore "$(pwd)/keystore.jks" \
             -storepass "password" \
             -keypass "password" \
             -alias "alias" \
@@ -34,7 +40,7 @@ jobs:
           printf '\n' >> gradle.properties
             
           cat >> gradle.properties <<EOF
-          STC_KEY_STORE_FILE_PATH=./keystore.jks
+          STC_KEY_STORE_FILE_PATH=$(pwd)/keystore.jks
           STC_KEY_STORE_FILE_PASS=password
           STC_KEY_STORE_ALIAS_NAME=alias
           STC_KEY_STORE_ALIAS_PASS=password
@@ -45,12 +51,6 @@ jobs:
           echo "============================="
           pwd
           ls -alht
-      - name: set up JDK 25
-        uses: actions/setup-java@v5
-        with:
-          java-version: '25'
-          distribution: 'microsoft'
-          cache: gradle
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
