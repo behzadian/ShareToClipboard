@@ -8,11 +8,34 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v6
+
+      - name: Create temporary signing keystore
+        shell: bash
+        run: |
+          KEYSTORE_FILE="$RUNNER_TEMP/temp-signing.jks"
+          STORE_PASS="$(openssl rand -hex 16)"
+          KEY_PASS="$(openssl rand -hex 16)"
+          ALIAS_NAME="tempalias"
+          keytool -genkeypair \
+            -keystore "./keystore.jks" \
+            -storepass "password" \
+            -keypass "password" \
+            -alias "alias" \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 365 \
+            -dname "CN=CI Build, OU=CI, O=STC, L=Build, ST=Build, C=IR" \
+            -noprompt
+            
+            cat >> gradle.properties <<EOF
+            STC_KEY_STORE_FILE_PATH=./keystore.jks
+            STC_KEY_STORE_FILE_PASS=password
+            STC_KEY_STORE_ALIAS_NAME=alial
+            STC_KEY_STORE_ALIAS_PASS=password
+            EOF
       - name: set up JDK 25
         uses: actions/setup-java@v5
         with:
