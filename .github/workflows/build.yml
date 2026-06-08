@@ -2,7 +2,7 @@ name: Android CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main","6" ]
   pull_request:
     branches: [ "main" ]
 
@@ -17,41 +17,6 @@ jobs:
           java-version: '25'
           distribution: 'microsoft'
           cache: gradle
-
-      - name: Create temporary signing keystore
-        shell: bash
-        run: |
-          KEYSTORE_FILE="$RUNNER_TEMP/temp-signing.jks"
-          STORE_PASS="$(openssl rand -hex 16)"
-          KEY_PASS="$(openssl rand -hex 16)"
-          ALIAS_NAME="tempalias"
-          keytool -genkeypair \
-            -keystore "$(pwd)/keystore.jks" \
-            -storepass "password" \
-            -keypass "password" \
-            -alias "alias" \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 365 \
-            -dname "CN=CI Build, OU=CI, O=STC, L=Build, ST=Build, C=IR" \
-            -noprompt
-    
-    
-          printf '\n' >> gradle.properties
-            
-          cat >> gradle.properties <<EOF
-          STC_KEY_STORE_FILE_PATH=$(pwd)/keystore.jks
-          STC_KEY_STORE_FILE_PASS=password
-          STC_KEY_STORE_ALIAS_NAME=alias
-          STC_KEY_STORE_ALIAS_PASS=password
-          EOF
-          
-          echo "===== gradle.properties ====="
-          cat gradle.properties
-          echo "============================="
-          pwd
-          ls -alht
-
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
