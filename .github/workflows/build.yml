@@ -29,13 +29,20 @@ jobs:
             -validity 365 \
             -dname "CN=CI Build, OU=CI, O=STC, L=Build, ST=Build, C=IR" \
             -noprompt
+    
+    
+          printf '\n' >> gradle.properties
             
-            cat >> gradle.properties <<EOF
-            STC_KEY_STORE_FILE_PATH=./keystore.jks
-            STC_KEY_STORE_FILE_PASS=password
-            STC_KEY_STORE_ALIAS_NAME=alial
-            STC_KEY_STORE_ALIAS_PASS=password
-            EOF
+          cat >> gradle.properties <<EOF
+          STC_KEY_STORE_FILE_PATH=./keystore.jks
+          STC_KEY_STORE_FILE_PASS=password
+          STC_KEY_STORE_ALIAS_NAME=alial
+          STC_KEY_STORE_ALIAS_PASS=password
+          EOF
+          
+          echo "===== gradle.properties ====="
+          cat gradle.properties
+          echo "============================="
       - name: set up JDK 25
         uses: actions/setup-java@v5
         with:
