@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
 }
 
 kotlin {
@@ -22,26 +21,10 @@ android {
                             STC_KEY_STORE_ALIAS_NAME=key-alias-name
                             STC_KEY_STORE_ALIAS_PASS=key-alias-password
                             """.trimIndent()
-                if (!project.hasProperty("STC_KEY_STORE_FILE_PATH")) {
-                    throw GradleException(
-                        exceptionMessage.replace("STC_KEY_STORE_FILE_PATH", "this line -> STC_KEY_STORE_FILE_PATH")
-                    )
-                }
-                if (!project.hasProperty("STC_KEY_STORE_FILE_PASS")) {
-                    throw GradleException(
-                        exceptionMessage.replace("STC_KEY_STORE_FILE_PASS", "this line -> STC_KEY_STORE_FILE_PASS")
-                    )
-                }
-                if (!project.hasProperty("STC_KEY_STORE_ALIAS_NAME")) {
-                    throw GradleException(
-                        exceptionMessage.replace("STC_KEY_STORE_ALIAS_NAME", "this line -> STC_KEY_STORE_ALIAS_NAME")
-                    )
-                }
-                if (!project.hasProperty("STC_KEY_STORE_ALIAS_PASS")) {
-                    throw GradleException(
-                        exceptionMessage.replace("STC_KEY_STORE_ALIAS_PASS", "this line -> STC_KEY_STORE_ALIAS_PASS")
-                    )
-                }
+                requireProperty("STC_KEY_STORE_FILE_PATH", exceptionMessage)
+                requireProperty("STC_KEY_STORE_FILE_PASS", exceptionMessage)
+                requireProperty("STC_KEY_STORE_ALIAS_NAME", exceptionMessage)
+                requireProperty("STC_KEY_STORE_ALIAS_PASS", exceptionMessage)
 
                 storeFile = file(project.property("STC_KEY_STORE_FILE_PATH") as String)
                 storePassword = project.property("STC_KEY_STORE_FILE_PASS") as String
@@ -57,12 +40,14 @@ android {
     defaultConfig {
         applicationId = "no1.share.to.clipboard"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 2
         versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        signingConfig = signingConfigs["DefaultSigningKey"]
+        if (keystorePath != null) {
+            signingConfig = signingConfigs["DefaultSigningKey"]
+        }
     }
 
     buildTypes {
@@ -93,4 +78,12 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+
+fun Project.requireProperty(propertyName: String, exceptionMessage: String) {
+    if (!hasProperty(propertyName)) {
+        throw GradleException(
+            exceptionMessage.replace(propertyName, "this line -> $propertyName")
+        )
+    }
 }
