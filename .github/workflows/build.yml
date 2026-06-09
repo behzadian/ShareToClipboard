@@ -16,6 +16,8 @@ jobs:
           java-version: '25'
           distribution: 'microsoft'
           cache: gradle
+      - name: Gradle version
+        run: ./gradlew --version
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
