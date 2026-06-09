@@ -14,22 +14,10 @@ android {
     if (keystorePath != null) {
         signingConfigs {
             create("DefaultSigningKey") {
-                var exceptionMessage = """
-                            Please define signing properties in ~/.gradle/gradle.properties like below:
-                            STC_KEY_STORE_FILE_PATH=/path/to/key/store/file
-                            STC_KEY_STORE_FILE_PASS=key-store-password
-                            STC_KEY_STORE_ALIAS_NAME=key-alias-name
-                            STC_KEY_STORE_ALIAS_PASS=key-alias-password
-                            """.trimIndent()
-                requireProperty("STC_KEY_STORE_FILE_PATH", exceptionMessage)
-                requireProperty("STC_KEY_STORE_FILE_PASS", exceptionMessage)
-                requireProperty("STC_KEY_STORE_ALIAS_NAME", exceptionMessage)
-                requireProperty("STC_KEY_STORE_ALIAS_PASS", exceptionMessage)
-
-                storeFile = file(project.property("STC_KEY_STORE_FILE_PATH") as String)
-                storePassword = project.property("STC_KEY_STORE_FILE_PASS") as String
-                keyAlias = project.property("STC_KEY_STORE_ALIAS_NAME") as String
-                keyPassword = project.property("STC_KEY_STORE_ALIAS_PASS") as String
+                storeFile = file(signingProperty("STC_KEY_STORE_FILE_PATH"))
+                storePassword = signingProperty("STC_KEY_STORE_FILE_PASS")
+                keyAlias = signingProperty("STC_KEY_STORE_ALIAS_NAME")
+                keyPassword = signingProperty("STC_KEY_STORE_ALIAS_PASS")
             }
 
         }
@@ -41,8 +29,8 @@ android {
         applicationId = "no1.share.to.clipboard"
         minSdk = 24
         targetSdk = 37
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         if (keystorePath != null) {
@@ -59,8 +47,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_25
+        targetCompatibility = JavaVersion.VERSION_25
     }
 }
 
@@ -80,10 +68,18 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 }
 
-fun Project.requireProperty(propertyName: String, exceptionMessage: String) {
+var signingKeysExceptionMessage = """
+    Please define signing properties in ~/.gradle/gradle.properties like below:
+    STC_KEY_STORE_FILE_PATH=/path/to/key/store/file
+    STC_KEY_STORE_FILE_PASS=key-store-password
+    STC_KEY_STORE_ALIAS_NAME=key-alias-name
+    STC_KEY_STORE_ALIAS_PASS=key-alias-password
+    """.trimIndent()
+fun Project.signingProperty(propertyName: String): String {
     if (!hasProperty(propertyName)) {
         throw GradleException(
-            exceptionMessage.replace(propertyName, "this line -> $propertyName")
+            signingKeysExceptionMessage.replace(propertyName, "this line -> $propertyName")
         )
     }
+    return this.property(propertyName) as String
 }
